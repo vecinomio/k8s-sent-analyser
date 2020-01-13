@@ -3,7 +3,7 @@
 properties([disableConcurrentBuilds()])
 
 def removeUnusedImages() {
-  sh 'docker image prune -af --filter="label=maintainer=devopsa3"'
+  sh 'docker image prune -af --filter="label=maintainer=imaki"'
 }
 
 pipeline {
@@ -67,7 +67,7 @@ pipeline {
       steps {
         script {
           try {
-            dockerImage = docker.build("${DockerHubUsername}/${AppRepoName}:${Tag}"["-f sa-frontend/Dockerfile"])
+            dockerImage = docker.build("${DockerHubUsername}/${AppRepoName}:${Tag}", "-f sa-frontend/Dockerfile .")
             currentBuild.result = 'SUCCESS'
           }
           catch (err) {
