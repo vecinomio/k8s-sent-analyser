@@ -25,6 +25,7 @@ pipeline {
   }
   environment {
     DockerHubUsername = "${params.DockerHubUsername}"
+    DockerHubCreds = "dockerHub"
     AppRepoName = 'sa-frontend'
     BuildAndTest = "${params.Build}"
     Release = "${params.Release}"
@@ -110,7 +111,7 @@ pipeline {
       steps {
         script {
           try {
-            docker.withRegistry("") {
+            docker.withRegistry("", DockerHubCreds ) {
               dockerImage.push()
             }
             currentBuild.result = 'SUCCESS'
