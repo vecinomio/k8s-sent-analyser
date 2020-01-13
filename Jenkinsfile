@@ -105,27 +105,26 @@ pipeline {
         }
       }
     }
-    // stage("Delivery") {
-    //   when { environment name: 'Release', value: 'true' }
-    //   steps {
-    //     script {
-    //       try {
-    //         sh '$(aws ecr get-login --no-include-email --region ${AWSRegion})'
-    //         docker.withRegistry("https://${ECRURI}") {
-    //           dockerImage.push()
-    //         }
-    //         currentBuild.result = 'SUCCESS'
-    //       }
-    //       catch (err) {
-    //         removeUnusedImages()
-    //         currentBuild.result = 'FAILURE'
-    //         emailext body: "${err}. Delivery to ECR Failed, check logs.", subject: "${FailureEmailSubject}", to: "${Email}"
-    //         throw (err)
-    //       }
-    //       echo "result is: ${currentBuild.currentResult}"
-    //     }
-    //   }
-    // }
+    stage("Delivery") {
+      when { environment name: 'Release', value: 'true' }
+      steps {
+        script {
+          try {
+            docker.withRegistry("") {
+              dockerImage.push()
+            }
+            currentBuild.result = 'SUCCESS'
+          }
+          catch (err) {
+            removeUnusedImages()
+            currentBuild.result = 'FAILURE'
+            emailext body: "${err}. Delivery to ECR Failed, check logs.", subject: "${FailureEmailSubject}", to: "${Email}"
+            throw (err)
+          }
+          echo "result is: ${currentBuild.currentResult}"
+        }
+      }
+    }
     // stage("Tagging") {
     //   when { environment name: 'Release', value: 'true' }
     //   steps {
