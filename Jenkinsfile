@@ -50,8 +50,7 @@ pipeline {
       steps {
         script {
           try {
-            sh 'cd sa-frontend && npm install'
-            sh 'npm run build'
+            sh 'cd sa-frontend && npm run build'
             currentBuild.result = 'SUCCESS'
           }
           catch (err) {
@@ -89,7 +88,7 @@ pipeline {
             testContainer = dockerImage.run('-p 8092:80 --name test')
             retry(10) {
               sh 'sleep 5'
-              sh 'curl -sS http://localhost:8092 | grep "string for test"'
+              sh 'curl -sS http://localhost:8092 | grep "Sentiment Analysis"'
             }
             testContainer.stop()
             currentBuild.result = 'SUCCESS'
