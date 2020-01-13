@@ -67,7 +67,9 @@ pipeline {
       steps {
         script {
           try {
-            dockerImage = docker.build("${DockerHubUsername}/${AppRepoName}:${Tag}", "-f sa-frontend/Dockerfile .")
+            dir('sa-frontend') {
+              dockerImage = docker.build("${DockerHubUsername}/${AppRepoName}:${Tag}")
+            }
             currentBuild.result = 'SUCCESS'
           }
           catch (err) {
