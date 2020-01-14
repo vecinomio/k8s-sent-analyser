@@ -162,35 +162,23 @@ pipeline {
         removeUnusedImages()
       }
     }
-    // stage("Deployment") {
-    //   when { environment name: 'Deployment', value: 'true' }
-    //   steps {
-    //     script {
-    //       try {
-    //           UnicId = "${Tag}".replaceAll("\\.", "-")
-    //           sh "kubectl create deployment "
-    //           sh """
-    //              CurrentStack=\$(aws cloudformation describe-stacks --output text --query "Stacks[?contains(StackName,'ECS-task')].[StackName]" --region ${AWSRegion} | tail -1)
-    //              CurrentDeploymentColor=\$(aws cloudformation describe-stacks --stack-name \$CurrentStack --query "Stacks[].Parameters[?ParameterKey=='DeploymentColor'].ParameterValue" --output text --region ${AWSRegion} | tail -1)
-    //              NewDeploymentColor="Green"
-    //              if [ \$CurrentDeploymentColor == "Green" ]
-    //                  then
-    //                      NewDeploymentColor="Blue"
-    //              fi
-    //              aws cloudformation deploy --stack-name ECS-task-${UnicId} --template-file ops/cloudformation/ECS/ecs-task.yml --parameter-overrides ImageUrl=${ECRURI}/${AppRepoName}:${Tag} ServiceName=snakes-${UnicId} DeploymentColor=\$NewDeploymentColor --capabilities CAPABILITY_IAM --region ${AWSRegion}
-    //              aws cloudformation deploy --stack-name alb --template-file ops/cloudformation/alb.yml --parameter-overrides VPCStackName=DevVPC \${CurrentDeploymentColor}Weight=${CurrentVersionTrafficWeight} \${NewDeploymentColor}Weight=${NewVersionTrafficWeight} --capabilities CAPABILITY_IAM --region ${AWSRegion}
-    //              """
-    //         currentBuild.result = 'SUCCESS'
-    //         emailext body: 'New release was successfully deployed to ECS.', subject: "${SuccessEmailSubject}", to: "${Email}"
-    //       }
-    //       catch (err) {
-    //         currentBuild.result = 'FAILURE'
-    //         emailext body: "${err}. ECS Stack Creation Failed, check logs.", subject: "${FailureEmailSubject}", to: "${Email}"
-    //         throw (err)
-    //       }
-    //       echo "result is: ${currentBuild.currentResult}"
-    //     }
-    //   }
-    // }
+    stage("Deployment") {
+      when { environment name: 'Deployment', value: 'true' }
+      steps {
+        script {
+          try {
+              sh "kubectl set image deployment/${AppRepoName} ${AppRepoName}=${DockerHubUsername}/${AppRepoName}:${Tag}"
+            currentBuild.result = 'SUCCESS'
+            emailext body: 'New release was successfully deployed to GKE.', subject: "${SuccessEmailSubject}", to: "${Email}"
+          }
+          catch (err) {
+            currentBuild.result = 'FAILURE'
+            emailext body: "${err}. Deploy to GKE Failed, check logs.", subject: "${FailureEmailSubject}", to: "${Email}"
+            throw (err)
+          }
+          echo "result is: ${currentBuild.currentResult}"
+        }
+      }
+    }
   }
 }
