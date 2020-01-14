@@ -15,13 +15,12 @@ pipeline {
     timestamps()
   }
   parameters {
-    string(name: 'DockerHubUsername', defaultValue: 'vecinomio', description: 'Enter your Dockerhub username')
+    string(name: 'DockerHubUsername', defaultValue: 'vecinomio', description: 'Enter your DockerHub username')
     string(name: 'Email', defaultValue: 'vecinomio@gmail.com', description: 'Enter the desired Email for the Job notifications')
-    string(name: 'Version', defaultValue: '1.0.0', description: 'Change version of the App')
+    string(name: 'Version', defaultValue: '1.0.0', description: 'Change version of the App to desired')
     booleanParam(name: 'Build', defaultValue: true, description: 'Specify to Build App and do Tests')
-    booleanParam(name: 'Release', defaultValue: false, description: 'Specify to deliver an artifact to ECR and tags to Github repos')
-    booleanParam(name: 'Deployment', defaultValue: false, description: 'Specify to Deploy a new version of App to ECS')
-    // choice(name: 'NewVersionTrafficWeight', choices: getWeight(), description: 'Set the amount of traffic for the new version in %. \nExample: If choose 10, than 10% of the traffic will forward to the new version, and 90% to the current one.')
+    booleanParam(name: 'Release', defaultValue: false, description: 'Specify to deliver an image to the DockerHub')
+    booleanParam(name: 'Deployment', defaultValue: false, description: 'Specify to Deploy a new version of App to GKE')
   }
   environment {
     DockerHubUsername = "${params.DockerHubUsername}"
@@ -128,35 +127,6 @@ pipeline {
         }
       }
     }
-    // stage("Tagging") {
-    //   when { environment name: 'Release', value: 'true' }
-    //   steps {
-    //     script {
-    //       try {
-    //         sh "git tag -a ${Tag} -m 'Added tag ${Tag}'"
-    //         sh "git push origin ${Tag}"
-    //         sh "rm -rf ${OPSRepoBranch}"
-    //         sh "mkdir -p ${OPSRepoBranch}"
-    //         dir("${OPSRepoBranch}") {
-    //           git(url: "${OPSRepoURL}", branch: "${OPSRepoBranch}", credentialsId: "devopsa3")
-    //           sshagent (credentials: ['devopsa3']) {
-    //             sh "git tag -a ${Tag} -m 'Added tag ${Tag}'"
-    //             sh "git push origin ${Tag}"
-    //           }
-    //         }
-    //         currentBuild.result = 'SUCCESS'
-    //       }
-    //       catch (err) {
-    //         removeUnusedImages()
-    //         sh "rm -rf ${OPSRepoBranch}"
-    //         currentBuild.result = 'FAILURE'
-    //         emailext body: "${err}. Tagging Stage Failed, check logs.", subject: "${FailureEmailSubject}", to: "${Email}"
-    //         throw (err)
-    //       }
-    //       echo "result is: ${currentBuild.currentResult}"
-    //     }
-    //   }
-    // }
     stage("CleanUp") {
       steps {
         removeUnusedImages()
