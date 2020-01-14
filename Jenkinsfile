@@ -30,7 +30,7 @@ pipeline {
     BuildAndTest = "${params.Build}"
     Release = "${params.Release}"
     Deployment = "${params.Deployment}"
-    Tag = "${params.NewRelease}"
+    Tag = "${params.Version}"
     Email = "${params.Email}"
     FailureEmailSubject = "JOB with identifier ${Tag} FAILED"
     SuccessEmailSubject = "JOB with identifier ${Tag} SUCCESS"
@@ -155,17 +155,16 @@ pipeline {
     //     }
     //   }
     // }
-    // stage("CleanUp") {
-    //   steps {
-    //     removeUnusedImages()
-    //   }
-    // }
+    stage("CleanUp") {
+      steps {
+        removeUnusedImages()
+      }
+    }
     // stage("Deployment") {
     //   when { environment name: 'Deployment', value: 'true' }
     //   steps {
     //     script {
     //       try {
-    //         dir("${OPSRepoBranch}") {
     //           UnicId = "${Tag}".replaceAll("\\.", "-")
     //           sh """
     //              CurrentStack=\$(aws cloudformation describe-stacks --output text --query "Stacks[?contains(StackName,'ECS-task')].[StackName]" --region ${AWSRegion} | tail -1)
@@ -178,7 +177,6 @@ pipeline {
     //              aws cloudformation deploy --stack-name ECS-task-${UnicId} --template-file ops/cloudformation/ECS/ecs-task.yml --parameter-overrides ImageUrl=${ECRURI}/${AppRepoName}:${Tag} ServiceName=snakes-${UnicId} DeploymentColor=\$NewDeploymentColor --capabilities CAPABILITY_IAM --region ${AWSRegion}
     //              aws cloudformation deploy --stack-name alb --template-file ops/cloudformation/alb.yml --parameter-overrides VPCStackName=DevVPC \${CurrentDeploymentColor}Weight=${CurrentVersionTrafficWeight} \${NewDeploymentColor}Weight=${NewVersionTrafficWeight} --capabilities CAPABILITY_IAM --region ${AWSRegion}
     //              """
-    //         }
     //         currentBuild.result = 'SUCCESS'
     //         emailext body: 'New release was successfully deployed to ECS.', subject: "${SuccessEmailSubject}", to: "${Email}"
     //       }
