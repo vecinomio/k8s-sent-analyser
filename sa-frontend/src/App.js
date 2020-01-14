@@ -47,7 +47,7 @@ class App extends Component {
                 <div className="centerize">
                     <Paper zDepth={1} className="content">
                         <p><center>string for test</center></p>
-                        <h2>Simple Sentiment Analyser version 1.0.1</h2>
+                        <h2>Simple Sentiment Analyser version 1.0.2</h2>
                         <TextField ref={ref => this.textField = ref} onKeyUp={this.onEnterPress.bind(this)}
                                    hintText="Type your sentence."/>
                         <RaisedButton  label="Send" style={style} onClick={this.analyzeSentence.bind(this)}/>
